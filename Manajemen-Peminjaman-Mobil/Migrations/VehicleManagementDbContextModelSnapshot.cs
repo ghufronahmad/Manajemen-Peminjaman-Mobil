@@ -209,6 +209,32 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Email = "admin@gmail.com",
+                            Name = "Admin User",
+                            Password = "$2a$11$Z0TjmzZoJS2HvPiAxZ.LyeSmUsDWObt81hoh15Hwlx42Q2pGfRxa6",
+                            Role = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
+                            Email = "approver1@gmail.com",
+                            Name = "Approver 1",
+                            Password = "$2a$11$/j1nB/HKlIJKM8SWE/MJsO82oKkLdw8/yBqOJArM8RCEmTdx76dKe",
+                            Role = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
+                            Email = "approver2@gmail.com",
+                            Name = "Approver 2",
+                            Password = "$2a$11$0F2MPQOY5KvUlHF7tGjQMOLFnSe2rlvt/msm96uZAwVA11X1GlRd.",
+                            Role = 1
+                        });
                 });
 
             modelBuilder.Entity("Manajemen_Peminjaman_Mobil.Models.Employee", b =>

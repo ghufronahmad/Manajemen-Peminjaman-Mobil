@@ -9,12 +9,14 @@ namespace Manajemen_Peminjaman_Mobil.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly VehicleManagementDbContext vehicleManagementDbContext;
+        private readonly VehicleManagementDbContext _context;
 
-        public AuthController(VehicleManagementDbContext vehicleManagementDbContext)
+        public AuthController(VehicleManagementDbContext context)
         {
-            this.vehicleManagementDbContext = vehicleManagementDbContext;
+            _context = context;
         }
+
+        // GET: Login
         public IActionResult Login()
         {
             ClaimsPrincipal claimUser = HttpContext.User;
@@ -22,42 +24,50 @@ namespace Manajemen_Peminjaman_Mobil.Controllers
             if (claimUser.Identity.IsAuthenticated)
                 return RedirectToAction("Index", "Home");
 
-
             return View();
         }
 
+        // POST: Login
         [HttpPost]
         public async Task<IActionResult> Login(User modelLogin)
         {
-            var user = vehicleManagementDbContext.Users.SingleOrDefault(u => u.Email == modelLogin.Email);
+            // Find user by email
+            var user = _context.Users.SingleOrDefault(u => u.Email == modelLogin.Email);
 
-            // Check if the user exists and the password matches
             if (user != null && BCrypt.Net.BCrypt.Verify(modelLogin.Password, user.Password))
             {
-                // Create claims
+                // Create user claims based on user information
                 List<Claim> claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Email),
-                    new Claim(ClaimTypes.Role, user.Role),
+                    new Claim(ClaimTypes.Role, user.Role.ToString()), // Use Role enum and convert to string
                 };
 
-                ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims,
-                    CookieAuthenticationDefaults.AuthenticationScheme);
+                ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                AuthenticationProperties properties = new AuthenticationProperties()
+                AuthenticationProperties properties = new AuthenticationProperties
                 {
-                    AllowRefresh = true
+                    AllowRefresh = true,
                 };
 
-                // Sign in the user
+                // Sign in the user with claims
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
                     new ClaimsPrincipal(claimsIdentity), properties);
 
                 return RedirectToAction("Index", "Home");
             }
 
+            // If user login fails, show error message
             ViewData["ValidateMessage"] = "User not found or incorrect password";
             return View();
+        }
+
+        // POST: Logout
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login");
         }
     }
 }

@@ -1,0 +1,60 @@
+﻿@using Manajemen_Peminjaman_Mobil.Models.Domain
+@model User
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login - Manajemen Peminjaman Mobil</title>
+    <link rel="shortcut icon" type="image/png" href="../images/logos/favicon.png" />
+    <link rel="stylesheet" href="../css/styles.min.css" />
+</head>
+
+<body>
+    <!-- Body Wrapper -->
+    <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+         data-sidebar-position="fixed" data-header-position="fixed">
+        <div class="position-relative overflow-hidden radial-gradient min-vh-100 d-flex align-items-center justify-content-center">
+            <div class="d-flex align-items-center justify-content-center w-100">
+                <div class="row justify-content-center w-100">
+                    <div class="col-md-8 col-lg-6 col-xxl-3">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <p class="text-center">Login to your account</p>
+
+                                <form asp-controller="Auth" asp-action="Login" method="post">
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email Address</label>
+                                        <input type="email" class="form-control" id="email" asp-for="Email" placeholder="Enter your email">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="password" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="password" asp-for="Password" placeholder="Enter your password">
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary w-100 fs-4 mb-4 rounded-2">Login</button>
+
+                                    @if (ViewData["ValidateMessage"] != null)
+                                    {
+                                        <div class="alert alert-danger" role="alert">
+                                            @ViewData["ValidateMessage"]
+                                        </div>
+                                    }
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../libs/jquery/dist/jquery.min.js"></script>
+    <script src="../libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
