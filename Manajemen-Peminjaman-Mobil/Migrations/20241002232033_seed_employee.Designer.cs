@@ -4,6 +4,7 @@ using Manajemen_Peminjaman_Mobil.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Manajemen_Peminjaman_Mobil.Migrations
 {
     [DbContext(typeof(VehicleManagementDbContext))]
-    partial class VehicleManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241002232033_seed_employee")]
+    partial class seed_employee
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -77,20 +80,6 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ApproversLevels");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Level = 1,
-                            Name = "Level 1"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Level = 2,
-                            Name = "Level 2"
-                        });
                 });
 
             modelBuilder.Entity("Manajemen_Peminjaman_Mobil.Models.Domain.Approver", b =>
@@ -119,22 +108,6 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Approvers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            DepartementId = 1,
-                            EmployeeId = 2,
-                            UserId = new Guid("22222222-2222-2222-2222-222222222222")
-                        },
-                        new
-                        {
-                            Id = 2,
-                            DepartementId = 4,
-                            EmployeeId = 2,
-                            UserId = new Guid("33333333-3333-3333-3333-333333333333")
-                        });
                 });
 
             modelBuilder.Entity("Manajemen_Peminjaman_Mobil.Models.Domain.Departement", b =>
@@ -332,7 +305,7 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
                             Email = "admin@gmail.com",
                             Name = "Admin User",
-                            Password = "$2a$11$bNUtcZu0A8DViKFbS82ZN.uWPNN5iC2hV4vi8VED1jXINAA1PkUGu",
+                            Password = "$2a$11$jm/ssG4rCbybAhR9XypJUeIiYoYYFAP5cuejAwGZziNbDLi8wbhXa",
                             Role = 0
                         },
                         new
@@ -340,7 +313,7 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                             Id = new Guid("22222222-2222-2222-2222-222222222222"),
                             Email = "approver1@gmail.com",
                             Name = "Approver 1",
-                            Password = "$2a$11$mGlsdUWAO48JOqnI6f9ECe96PHyk/E6YTjHDooXmNcRkq9QxGybjO",
+                            Password = "$2a$11$cJ6eTejoy2feRF/AwTd9R.xJMC0S9PI.okNZnY97iFqxdzO7yoOm6",
                             Role = 1
                         },
                         new
@@ -348,7 +321,7 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                             Id = new Guid("33333333-3333-3333-3333-333333333333"),
                             Email = "approver2@gmail.com",
                             Name = "Approver 2",
-                            Password = "$2a$11$tN2.aRiPbQpZgP/3.Dev6uLlr0cu59RVk/8dLakSMf.TSFgzfOkau",
+                            Password = "$2a$11$eefl9QJD/K11zDewLZHveuPm/IZthB9Qk7AXfHglqLfocJKCqbp9K",
                             Role = 1
                         });
                 });
@@ -543,44 +516,6 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Vehicles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Toyota Avanza",
-                            Plat_Nomor = "L 1234 AB",
-                            Status_Kepemilikan = 0,
-                            Tahun_Kendaraan = "2020",
-                            Type = 0
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Isuzu Elf",
-                            Plat_Nomor = "B 9876 XY",
-                            Status_Kepemilikan = 1,
-                            Tahun_Kendaraan = "2019",
-                            Type = 0
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Mitsubishi L300",
-                            Plat_Nomor = "KT 9124 XY",
-                            Status_Kepemilikan = 0,
-                            Tahun_Kendaraan = "2015",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Mitsubishi Canter",
-                            Plat_Nomor = "KT 1204 XY",
-                            Status_Kepemilikan = 0,
-                            Tahun_Kendaraan = "2010",
-                            Type = 1
-                        });
                 });
 
             modelBuilder.Entity("Manajemen_Peminjaman_Mobil.Models.VehicleBooking", b =>
@@ -619,35 +554,9 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
 
                     b.HasIndex("EndMiningId");
 
-                    b.HasIndex("StartMiningId");
-
                     b.HasIndex("VehicleId");
 
                     b.ToTable("VehicleBookings");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Durasi = 3,
-                            EmployeeId = 1,
-                            EndMiningId = 2,
-                            Keperluan = "Site inspection",
-                            StartMiningId = 1,
-                            Tanggal = new DateTime(2024, 10, 2, 9, 36, 49, 650, DateTimeKind.Local).AddTicks(4078),
-                            VehicleId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Durasi = 5,
-                            EmployeeId = 1,
-                            EndMiningId = 3,
-                            Keperluan = "Equipment transfer",
-                            StartMiningId = 2,
-                            Tanggal = new DateTime(2024, 10, 1, 9, 36, 49, 650, DateTimeKind.Local).AddTicks(4113),
-                            VehicleId = 2
-                        });
                 });
 
             modelBuilder.Entity("Manajemen_Peminjaman_Mobil.Models.ApprovalProcess", b =>
@@ -775,15 +684,9 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Manajemen_Peminjaman_Mobil.Models.Domain.Mining", "EndMining")
+                    b.HasOne("Manajemen_Peminjaman_Mobil.Models.Domain.Mining", "Mining")
                         .WithMany()
                         .HasForeignKey("EndMiningId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Manajemen_Peminjaman_Mobil.Models.Domain.Mining", "StartMining")
-                        .WithMany()
-                        .HasForeignKey("StartMiningId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -795,9 +698,7 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
 
                     b.Navigation("Employee");
 
-                    b.Navigation("EndMining");
-
-                    b.Navigation("StartMining");
+                    b.Navigation("Mining");
 
                     b.Navigation("Vehicle");
                 });

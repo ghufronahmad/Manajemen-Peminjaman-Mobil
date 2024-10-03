@@ -1,0 +1,55 @@
+﻿@model IEnumerable<Manajemen_Peminjaman_Mobil.Models.VehicleBooking>
+
+@{
+    ViewData["Title"] = "Dashboard Booking";
+}
+
+<div class="container-fluid">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title fw-semibold mb-4">Create Booking</h5>
+                <div class="card">
+                    <div class="card-body">
+                        <a asp-action="Create" class="btn btn-primary">Create New Booking</a>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Vehicle</th>
+                                    <th>Durasi</th>
+                                    <th>Keperluan</th>
+                                    <th>Tanggal</th>
+                                    <th>Asal</th>
+                                    <th>Tujuan</th>
+                                    <th>Employee</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var vehicleBooking in Model)
+                                {
+                                    <tr>
+                                        <td>@vehicleBooking.Vehicle?.Name</td>
+                                        <td>@vehicleBooking.Durasi</td>
+                                        <td>@vehicleBooking.Keperluan</td>
+                                        <td>@vehicleBooking.Tanggal.ToString("yyyy-MM-dd")</td>
+                                        <td>@vehicleBooking.StartMining?.Mining_Name</td> <!-- Access StartMining navigation property -->
+                                        <td>@vehicleBooking.EndMining?.Mining_Name</td> <!-- Access EndMining navigation property -->
+                                        <td>@vehicleBooking.Employee?.Name</td>
+                                        <td>
+                                            <a asp-action="Edit" asp-route-id="@vehicleBooking.Id" class="btn btn-warning">Edit</a>
+                                            <a asp-action="Delete" asp-route-id="@vehicleBooking.Id" class="btn btn-danger">Delete</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

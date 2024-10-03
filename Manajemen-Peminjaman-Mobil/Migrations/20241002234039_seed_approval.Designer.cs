@@ -4,6 +4,7 @@ using Manajemen_Peminjaman_Mobil.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Manajemen_Peminjaman_Mobil.Migrations
 {
     [DbContext(typeof(VehicleManagementDbContext))]
-    partial class VehicleManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241002234039_seed_approval")]
+    partial class seed_approval
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -332,7 +335,7 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
                             Email = "admin@gmail.com",
                             Name = "Admin User",
-                            Password = "$2a$11$bNUtcZu0A8DViKFbS82ZN.uWPNN5iC2hV4vi8VED1jXINAA1PkUGu",
+                            Password = "$2a$11$U88ESVTWq0cGwizOJ4bCIu8C77S1W2O134t1xtJgetieNaCrBJ5EK",
                             Role = 0
                         },
                         new
@@ -340,7 +343,7 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                             Id = new Guid("22222222-2222-2222-2222-222222222222"),
                             Email = "approver1@gmail.com",
                             Name = "Approver 1",
-                            Password = "$2a$11$mGlsdUWAO48JOqnI6f9ECe96PHyk/E6YTjHDooXmNcRkq9QxGybjO",
+                            Password = "$2a$11$CN90jNe2NowYVK5.Zof8oujy2qxlC.PNTGJoG2JLeOnUS8NIkMQBG",
                             Role = 1
                         },
                         new
@@ -348,7 +351,7 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                             Id = new Guid("33333333-3333-3333-3333-333333333333"),
                             Email = "approver2@gmail.com",
                             Name = "Approver 2",
-                            Password = "$2a$11$tN2.aRiPbQpZgP/3.Dev6uLlr0cu59RVk/8dLakSMf.TSFgzfOkau",
+                            Password = "$2a$11$Kt5U8.LS3ZWnAyagN9DZ5uuEgml.u0Abxq/45Ky385N4T39.SWrN6",
                             Role = 1
                         });
                 });
@@ -619,35 +622,9 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
 
                     b.HasIndex("EndMiningId");
 
-                    b.HasIndex("StartMiningId");
-
                     b.HasIndex("VehicleId");
 
                     b.ToTable("VehicleBookings");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Durasi = 3,
-                            EmployeeId = 1,
-                            EndMiningId = 2,
-                            Keperluan = "Site inspection",
-                            StartMiningId = 1,
-                            Tanggal = new DateTime(2024, 10, 2, 9, 36, 49, 650, DateTimeKind.Local).AddTicks(4078),
-                            VehicleId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Durasi = 5,
-                            EmployeeId = 1,
-                            EndMiningId = 3,
-                            Keperluan = "Equipment transfer",
-                            StartMiningId = 2,
-                            Tanggal = new DateTime(2024, 10, 1, 9, 36, 49, 650, DateTimeKind.Local).AddTicks(4113),
-                            VehicleId = 2
-                        });
                 });
 
             modelBuilder.Entity("Manajemen_Peminjaman_Mobil.Models.ApprovalProcess", b =>
@@ -775,15 +752,9 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Manajemen_Peminjaman_Mobil.Models.Domain.Mining", "EndMining")
+                    b.HasOne("Manajemen_Peminjaman_Mobil.Models.Domain.Mining", "Mining")
                         .WithMany()
                         .HasForeignKey("EndMiningId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Manajemen_Peminjaman_Mobil.Models.Domain.Mining", "StartMining")
-                        .WithMany()
-                        .HasForeignKey("StartMiningId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -795,9 +766,7 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
 
                     b.Navigation("Employee");
 
-                    b.Navigation("EndMining");
-
-                    b.Navigation("StartMining");
+                    b.Navigation("Mining");
 
                     b.Navigation("Vehicle");
                 });

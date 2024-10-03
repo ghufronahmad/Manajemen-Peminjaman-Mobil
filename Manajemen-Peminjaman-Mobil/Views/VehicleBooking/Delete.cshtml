@@ -1,0 +1,63 @@
+﻿@model Manajemen_Peminjaman_Mobil.Models.VehicleBooking
+@{
+    ViewData["Title"] = "Delete Booking";
+}
+
+<h1>Delete Vehicle Booking</h1>
+
+<h4>Are you sure you want to delete this?</h4>
+<div>
+    <h4>Vehicle Booking</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Vehicle.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Vehicle.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Keperluan)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Keperluan)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Durasi)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Durasi)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Tanggal)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Tanggal.ToString("yyyy-MM-dd"))
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.StartMiningId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.StartMiningId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.EndMiningId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.EndMiningId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Employee.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Employee.Name)
+        </dd>
+    </dl>
+</div>
+
+<form asp-action="DeleteConfirmed">
+    <input type="hidden" asp-for="Id" />
+    <input type="submit" value="Delete" class="btn btn-danger" />
+</form>
+
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>

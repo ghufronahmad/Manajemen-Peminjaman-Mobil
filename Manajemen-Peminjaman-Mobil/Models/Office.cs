@@ -11,7 +11,7 @@ namespace Manajemen_Peminjaman_Mobil.Models
         public Region Region { get; set; }
         public Unit Unit { get; set; }
 
-        public ICollection<Region> Regions { get; set; }
+        //public ICollection<Region> Regions { get; set; }
 
     }
 

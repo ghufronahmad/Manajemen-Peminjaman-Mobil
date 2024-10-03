@@ -1,0 +1,91 @@
+﻿@model Manajemen_Peminjaman_Mobil.Models.VehicleBooking
+
+@{
+    ViewData["Title"] = "Create Vehicle Booking";
+}
+
+<div class="container-fluid">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title fw-semibold mb-4">Create Booking</h5>
+                <div class="card">
+                    <div class="card-body">
+                        <form asp-action="Create">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                            <!-- Keperluan Field -->
+                            <div class="form-group">
+                                <label asp-for="Keperluan" class="control-label"></label>
+                                <input asp-for="Keperluan" class="form-control" placeholder="Enter Purpose" />
+                                <span asp-validation-for="Keperluan" class="text-danger"></span>
+                            </div>
+
+                            <!-- Durasi Field -->
+                            <div class="form-group">
+                                <label asp-for="Durasi" class="control-label"></label>
+                                <input asp-for="Durasi" class="form-control" placeholder="Enter Duration in Hours" />
+                                <span asp-validation-for="Durasi" class="text-danger"></span>
+                            </div>
+
+                            <!-- Tanggal Field -->
+                            <div class="form-group">
+                                <label asp-for="Tanggal" class="control-label"></label>
+                                <input asp-for="Tanggal" class="form-control" type="date" />
+                                <span asp-validation-for="Tanggal" class="text-danger"></span>
+                            </div>
+
+                            <!-- Start Mining Field -->
+                            <div class="form-group">
+                                <label asp-for="StartMiningId" class="control-label">Start Mining Location</label>
+                                <select asp-for="StartMiningId" class="form-control" asp-items="ViewBag.Minings">
+                                    <option value="">-- Select Start Mining Location --</option>
+                                </select>
+                                <span asp-validation-for="StartMiningId" class="text-danger"></span>
+                            </div>
+
+                            <!-- End Mining Field -->
+                            <div class="form-group">
+                                <label asp-for="EndMiningId" class="control-label">End Mining Location</label>
+                                <select asp-for="EndMiningId" class="form-control" asp-items="ViewBag.Minings">
+                                    <option value="">-- Select End Mining Location --</option>
+                                </select>
+                                <span asp-validation-for="EndMiningId" class="text-danger"></span>
+                            </div>
+
+                            <!-- Employee Field -->
+                            <div class="form-group">
+                                <label asp-for="EmployeeId" class="control-label">Employee</label>
+                                <select asp-for="EmployeeId" class="form-control" asp-items="ViewBag.Employees">
+                                    <option value="">-- Select Employee --</option>
+                                </select>
+                                <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                            </div>
+
+                            <!-- Vehicle Field -->
+                            <div class="form-group">
+                                <label asp-for="VehicleId" class="control-label">Vehicle</label>
+                                <select asp-for="VehicleId" class="form-control" asp-items="ViewBag.Vehicles">
+                                    <option value="">-- Select Vehicle --</option>
+                                </select>
+                                <span asp-validation-for="VehicleId" class="text-danger"></span>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="form-group">
+                                <input type="submit" value="Create Booking" class="btn btn-primary" />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
