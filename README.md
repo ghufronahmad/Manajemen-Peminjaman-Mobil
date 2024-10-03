@@ -1,7 +1,7 @@
 
 # Teknikal Test 🤩
 
-Ini adalah repositori yang diperuntukkan untuk tes teknikal dengan `case` nya adalah `perusahaan tambang nikel`.
+Ini adalah repositori yang diperuntukkan untuk tes teknikal dengan `case` nya adalah `perusahaan tambang batu bara`.
 
 
 ## Teknologi yang digunakan 🛠️
