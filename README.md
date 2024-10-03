@@ -60,3 +60,8 @@ dotnet watch
 | :-------- | :------- |
 | `approver1@gmail.com` | `ApproverPassword123` |
 | `approver1@gmail.com` | `ApproverPassword123` |
+
+
+## ERD 🤹🏻‍♂️
+### Relational
+![App Screenshot](https://github.com/altamisatmaja/sistem-manajemen-kendaraan-backend/blob/main/public/readme/erd.png?raw=true)
