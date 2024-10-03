@@ -8,6 +8,21 @@ Ini adalah repositori yang diperuntukkan untuk tes teknikal dengan `case` nya ad
 | .Net 8 | SQL Server | Boostrap |
 | :-------- |  :------------------------- |  :------------------------- |
 
+## Partial Screenshots 📄
+### 1. `Admin` Dashboard
+![App Screenshot](https://github.com/ghufronahmad/Manajemen-Peminjaman-Mobil/blob/master/public/admin/dashboard.png?raw=true)
+
+### 2. `Admin` Dashboard Pemesanan
+![App Screenshot](https://github.com/ghufronahmad/Manajemen-Peminjaman-Mobil/blob/master/public/admin/booking.png?raw=true)
+
+### 3. `Admin` Dashboard Form
+![App Screenshot](https://github.com/ghufronahmad/Manajemen-Peminjaman-Mobil/blob/master/public/admin/create%20booking.png?raw=true)
+
+### 4. `Admin` Dashboard Responsive
+![App Screenshot](https://github.com/ghufronahmad/Manajemen-Peminjaman-Mobil/blob/master/public/admin/dashboard%20responsive.png?raw=true)
+
+### 5. `Approver` Dashboard
+Belum selesai
 
 
 ## Installation 🗳
@@ -60,8 +75,3 @@ dotnet watch
 | :-------- | :------- |
 | `approver1@gmail.com` | `ApproverPassword123` |
 | `approver1@gmail.com` | `ApproverPassword123` |
-
-
-## ERD 🤹🏻‍♂️
-### Relational
-![App Screenshot](https://github.com/altamisatmaja/sistem-manajemen-kendaraan-backend/blob/main/public/readme/erd.png?raw=true)
