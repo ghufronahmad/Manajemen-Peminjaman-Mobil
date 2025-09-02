@@ -1,8 +1,9 @@
-﻿@using Manajemen_Peminjaman_Mobil.Models.Domain
-@model User
+﻿@using Manajemen_Peminjaman_Mobil.Models
+@model LoginViewModel
 @{
     Layout = null;
 }
+
 
 <!DOCTYPE html>
 
@@ -29,6 +30,8 @@
 
                                 <form asp-controller="Auth" asp-action="Login" method="post">
                                     <div class="mb-3">
+                                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
                                         <label for="email" class="form-label">Email Address</label>
                                         <input type="email" class="form-control" id="email" asp-for="Email" placeholder="Enter your email">
                                     </div>

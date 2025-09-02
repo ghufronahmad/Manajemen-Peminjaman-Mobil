@@ -9,6 +9,24 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title fw-semibold mb-4">Create Booking</h5>
+                <div class="card my-3">
+                    <div class="card-body bg-light">
+                        <h6 class="card-subtitle mb-2 text-muted">Export Laporan Periodik</h6>
+                        <form asp-controller="Report" asp-action="ExportToExcel" method="post" class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label for="startDate" class="form-label">Tanggal Mulai</label>
+                                <input type="date" class="form-control" id="startDate" name="startDate" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="endDate" class="form-label">Tanggal Selesai</label>
+                                <input type="date" class="form-control" id="endDate" name="endDate" required>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-success w-100">Export ke Excel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
                 <div class="card">
                     <div class="card-body">
                         <a asp-action="Create" class="btn btn-primary">Create New Booking</a>
@@ -22,7 +40,9 @@
                                     <th>Asal</th>
                                     <th>Tujuan</th>
                                     <th>Employee</th>
-                                    <th></th>
+                                    <th>Status</th>
+                                    <th>Driver</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -36,9 +56,26 @@
                                         <td>@vehicleBooking.StartMining?.Mining_Name</td> <!-- Access StartMining navigation property -->
                                         <td>@vehicleBooking.EndMining?.Mining_Name</td> <!-- Access EndMining navigation property -->
                                         <td>@vehicleBooking.Employee?.Name</td>
+                                        <td>@vehicleBooking.DriverName</td>
                                         <td>
-                                            <a asp-action="Edit" asp-route-id="@vehicleBooking.Id" class="btn btn-warning">Edit</a>
-                                            <a asp-action="Delete" asp-route-id="@vehicleBooking.Id" class="btn btn-danger">Delete</a>
+                                            @{
+                                                var status = vehicleBooking.Status;
+                                                string badgeClass = "bg-secondary"; // Warna default
+                                                if (status != null)
+                                                {
+                                                    if (status.Contains("Disetujui")) { badgeClass = "bg-success"; }
+                                                    else if (status.Contains("Ditolak")) { badgeClass = "bg-danger"; }
+                                                    else if (status.Contains("Menunggu")) { badgeClass = "bg-warning text-dark"; }
+                                                }
+                                            }
+                                            <span class="badge @badgeClass">@status</span>
+                                        </td>
+                                        <td>
+                                            @if (vehicleBooking.Status != "Disetujui" && !vehicleBooking.Status.Contains("Disetujui Level") && vehicleBooking.Status != "Ditolak")
+                                            {
+                                                <a asp-action="Edit" asp-route-id="@vehicleBooking.Id" class="btn btn-sm btn-warning">Edit</a>
+                                                <a asp-action="Delete" asp-route-id="@vehicleBooking.Id" class="btn btn-sm btn-danger">Delete</a>
+                                            }
                                         </td>
                                     </tr>
                                 }

@@ -20,6 +20,12 @@ namespace Manajemen_Peminjaman_Mobil.Models
         [DataType(DataType.Date)]
         public DateTime Tanggal { get; set; }
 
+        [Display(Name = "Status Pemesanan")]
+        public string Status { get; set; }
+
+        [Display(Name = "Nama Driver")]
+        public string? DriverName { get; set; }
+
         [Required(ErrorMessage = "Start Mining is required")]
         [Display(Name = "Start Mining")]
         public int StartMiningId { get; set; }
@@ -36,16 +42,10 @@ namespace Manajemen_Peminjaman_Mobil.Models
         [Display(Name = "Vehicle")]
         public int VehicleId { get; set; }
 
-        [NotMapped]
-        public Mining StartMining { get; set; }
-
-        [NotMapped]
-        public Mining EndMining { get; set; }
-
-        [NotMapped]
-        public Employee Employee { get; set; }
-
-        [NotMapped]
-        public Vehicle Vehicle { get; set; }
+        public virtual Mining StartMining { get; set; }
+        public virtual Mining EndMining { get; set; }
+        public virtual Employee Employee { get; set; }
+        public virtual Vehicle Vehicle { get; set; }
+        public virtual ICollection<ApprovalProcess> ApprovalProcesses { get; set; }
     }
 }

@@ -3,6 +3,8 @@ using Manajemen_Peminjaman_Mobil.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Manajemen_Peminjaman_Mobil.Controllers
@@ -11,14 +13,15 @@ namespace Manajemen_Peminjaman_Mobil.Controllers
     {
         private readonly VehicleManagementDbContext _context;
         private readonly ILogger<VehicleBookingController> _logger;
+        private readonly IActivityLogService _activityLogService;
 
-        public VehicleBookingController(VehicleManagementDbContext context, ILogger<VehicleBookingController> logger)
+        public VehicleBookingController(VehicleManagementDbContext context, ILogger<VehicleBookingController> logger, IActivityLogService activityLogService)
         {
             _context = context;
             _logger = logger;
+            _activityLogService = activityLogService;
         }
 
-        // GET: VehicleBooking
         public async Task<IActionResult> Index()
         {
             var vehicleBookings = await _context.VehicleBookings
@@ -30,10 +33,18 @@ namespace Manajemen_Peminjaman_Mobil.Controllers
             return View(vehicleBookings);
         }
 
-        // GET: VehicleBooking/Details/5
         public async Task<IActionResult> Details(int id)
         {
+            // [DIPERBAIKI] Tambahkan .Include() agar data relasi tampil di view Details
             var vehicleBooking = await _context.VehicleBookings
+                .Include(vb => vb.Vehicle)
+                .Include(vb => vb.StartMining)
+                .Include(vb => vb.EndMining)
+                .Include(vb => vb.Employee)
+                .Include(vb => vb.DriverName)
+                .Include(vb => vb.ApprovalProcesses)
+                    .ThenInclude(ap => ap.Approver)
+                        .ThenInclude(a => a.Employee)
                 .FirstOrDefaultAsync(vb => vb.Id == id);
 
             if (vehicleBooking == null)
@@ -44,74 +55,144 @@ namespace Manajemen_Peminjaman_Mobil.Controllers
             return View(vehicleBooking);
         }
 
-        // GET: VehicleBooking/Create
+        // [DIUBAH] Menggunakan ViewModel
         public IActionResult Create()
         {
-            _logger.LogInformation("Entering Create GET action");
-            PopulateDropdowns();
-            return View();
+            var viewModel = new CreateBookingViewModel
+            {
+                Tanggal = DateTime.Today
+            };
+            PopulateDropdowns(viewModel); 
+            var drivers = new List<string> { "Budi", "Andi", "Charlie", "Dedi" };
+            viewModel.Drivers = new SelectList(drivers);
+
+            return View(viewModel);
         }
 
-        // POST: VehicleBooking/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Keperluan,Durasi,Tanggal,StartMiningId,EndMiningId,EmployeeId,VehicleId")] VehicleBooking vehicleBooking)
+        public async Task<IActionResult> Create(CreateBookingViewModel viewModel)
         {
-            _logger.LogInformation("Entering Create POST action");
-            _logger.LogInformation($"Received VehicleBooking: {System.Text.Json.JsonSerializer.Serialize(vehicleBooking)}");
-
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _logger.LogInformation("Model state is valid");
-                try
-                {
-                    _context.Add(vehicleBooking);
-                    await _context.SaveChangesAsync();
-                    _logger.LogInformation($"VehicleBooking saved successfully with ID: {vehicleBooking.Id}");
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError($"Error saving VehicleBooking: {ex.Message}");
-                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
-                }
-            }
-            else
-            {
-                _logger.LogWarning("Model state is invalid");
-                foreach (var modelState in ViewData.ModelState)
-                {
-                    foreach (var error in modelState.Value.Errors)
-                    {
-                        _logger.LogWarning($"Validation error for {modelState.Key}: {error.ErrorMessage}");
-                    }
-                }
+                PopulateDropdowns(viewModel);
+                return View(viewModel);
             }
 
-            _logger.LogInformation("Repopulating dropdowns and returning to Create view");
-            PopulateDropdowns();
-            return View(vehicleBooking);
+            // [ATURAN BARU] Lakukan pengecekan posisi pegawai SEBELUM memulai transaksi
+            var employee = await _context.Employees.FindAsync(viewModel.EmployeeId);
+            if (employee == null)
+            {
+                ModelState.AddModelError("EmployeeId", "Pegawai yang dipilih tidak valid.");
+                PopulateDropdowns(viewModel);
+                return View(viewModel);
+            }
+
+            if (employee.EmployeePositionId == 2) // Asumsi 2 adalah ID untuk "Manager"
+            {
+                ModelState.AddModelError("", "Manager tidak diizinkan untuk membuat pemesanan kendaraan.");
+                PopulateDropdowns(viewModel);
+                return View(viewModel);
+            }
+
+            // Jika pengecekan lolos, baru mulai transaksi database
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var firstApprover = await _context.Approvers
+                    .Include(a => a.Employee)
+                    .FirstOrDefaultAsync(a => a.Employee.DepartementId == employee.DepartementId && a.ApprovalLevelId == 1);
+
+                if (firstApprover == null)
+                {
+                    await transaction.RollbackAsync();
+                    ModelState.AddModelError("", "Tidak dapat menemukan approver level 1 untuk departemen ini.");
+                    PopulateDropdowns(viewModel);
+                    return View(viewModel);
+                }
+
+                var newBooking = new VehicleBooking
+                {
+                    Keperluan = viewModel.Keperluan,
+                    Durasi = viewModel.Durasi,
+                    Tanggal = viewModel.Tanggal,
+                    StartMiningId = viewModel.StartMiningId,
+                    EndMiningId = viewModel.EndMiningId,
+                    EmployeeId = viewModel.EmployeeId,
+                    VehicleId = viewModel.VehicleId,
+                    DriverName = viewModel.DriverName,
+                    Status = "Menunggu Persetujuan" // Status awal selalu ini
+                };
+
+                // Buat tugas persetujuan untuk approver Level 1
+                var initialApprovalProcess = new ApprovalProcess
+                {
+                    ApproverId = firstApprover.Id,
+                    ApprovalLevelId = firstApprover.ApprovalLevelId,
+                    Status = StatusApproval.Menunggu
+                };
+
+                // Hubungkan proses persetujuan dengan booking baru
+                newBooking.ApprovalProcesses = new List<ApprovalProcess> { initialApprovalProcess };
+
+                _context.Add(newBooking);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                await _activityLogService.LogActivityAsync("CREATE_BOOKING", $"Membuat booking baru #{newBooking.Id} untuk {employee.Name}.");
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Error saat membuat booking.");
+                ModelState.AddModelError("", "Terjadi kesalahan saat menyimpan data.");
+                PopulateDropdowns(viewModel);
+                return View(viewModel);
+            }
         }
 
-        // GET: VehicleBooking/Edit/5
-        public async Task<IActionResult> Edit(int id)
-        {
-            var vehicleBooking = await _context.VehicleBookings.FindAsync(id);
+        // File: Controllers/VehicleBookingController.cs
 
-            if (vehicleBooking == null)
+        // GET: VehicleBooking/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
             {
                 return NotFound();
             }
 
-            PopulateDropdowns();
-            return View(vehicleBooking);
+            var booking = await _context.VehicleBookings.FindAsync(id);
+            if (booking == null)
+            {
+                return NotFound();
+            }
+
+            // Ubah dari Entity ke ViewModel
+            var viewModel = new EditBookingViewModel
+            {
+                Id = booking.Id,
+                Keperluan = booking.Keperluan,
+                Durasi = booking.Durasi,
+                Tanggal = booking.Tanggal,
+                DriverName = booking.DriverName,
+                StartMiningId = booking.StartMiningId,
+                EndMiningId = booking.EndMiningId,
+                EmployeeId = booking.EmployeeId,
+                VehicleId = booking.VehicleId
+            };
+
+            PopulateEditDropdowns(viewModel);
+            return View(viewModel);
         }
 
         // POST: VehicleBooking/Edit/5
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, VehicleBooking vehicleBooking)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, EditBookingViewModel viewModel)
         {
-            if (id != vehicleBooking.Id)
+            if (id != viewModel.Id)
             {
                 return NotFound();
             }
@@ -120,31 +201,64 @@ namespace Manajemen_Peminjaman_Mobil.Controllers
             {
                 try
                 {
-                    _context.Update(vehicleBooking);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!VehicleBookingExists(vehicleBooking.Id))
+                    // Ambil data asli dari database
+                    var bookingInDb = await _context.VehicleBookings.FindAsync(id);
+                    if (bookingInDb == null)
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
+
+                    // Update properti dari ViewModel
+                    bookingInDb.Keperluan = viewModel.Keperluan;
+                    bookingInDb.Durasi = viewModel.Durasi;
+                    bookingInDb.Tanggal = viewModel.Tanggal;
+                    bookingInDb.DriverName = viewModel.DriverName;
+                    bookingInDb.StartMiningId = viewModel.StartMiningId;
+                    bookingInDb.EndMiningId = viewModel.EndMiningId;
+                    bookingInDb.EmployeeId = viewModel.EmployeeId;
+                    bookingInDb.VehicleId = viewModel.VehicleId;
+
+                    _context.Update(bookingInDb);
+                    await _context.SaveChangesAsync();
+
+                    // [LOGGING] Catat aktivitas edit booking
+                    await _activityLogService.LogActivityAsync("EDIT_BOOKING", $"Mengubah data booking #{viewModel.Id}.");
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!VehicleBookingExists(viewModel.Id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
 
-            PopulateDropdowns();
-            return View(vehicleBooking);
+            // Jika tidak valid, siapkan lagi dropdown dan kembalikan ke view
+            PopulateEditDropdowns(viewModel);
+            return View(viewModel);
+        }
+
+        // Buat metode helper baru untuk populate dropdown di Edit
+        private void PopulateEditDropdowns(EditBookingViewModel viewModel)
+        {
+            viewModel.Minings = new SelectList(_context.Minings, "Id", "Mining_Name");
+            viewModel.Employees = new SelectList(_context.Employees, "Id", "Name");
+            viewModel.Vehicles = new SelectList(_context.Vehicles, "Id", "Name");
+            var drivers = new List<string> { "Budi", "Andi", "Charlie", "Dedi" };
+            viewModel.Drivers = new SelectList(drivers);
         }
 
         // GET: VehicleBooking/Delete/5
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int? id)
         {
-            var vehicleBooking = await _context.VehicleBookings.FindAsync(id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var vehicleBooking = await _context.VehicleBookings
+                .Include(v => v.Employee)
+                .Include(v => v.Vehicle)
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if (vehicleBooking == null)
             {
@@ -156,24 +270,29 @@ namespace Manajemen_Peminjaman_Mobil.Controllers
 
         // POST: VehicleBooking/Delete/5
         [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var vehicleBooking = await _context.VehicleBookings.FindAsync(id);
-            if (vehicleBooking == null)
+            if (vehicleBooking != null)
             {
-                return NotFound();
-            }
+                string logDescription = $"Menghapus booking #{vehicleBooking.Id} (Keperluan: {vehicleBooking.Keperluan}).";
 
-            _context.VehicleBookings.Remove(vehicleBooking);
-            await _context.SaveChangesAsync();
+                _context.VehicleBookings.Remove(vehicleBooking);
+                await _context.SaveChangesAsync();
+                
+                await _activityLogService.LogActivityAsync("DELETE_BOOKING", logDescription);
+            }
             return RedirectToAction(nameof(Index));
         }
 
-        private void PopulateDropdowns()
+        private void PopulateDropdowns(CreateBookingViewModel viewModel)
         {
-            ViewBag.Minings = new SelectList(_context.Minings, "Id", "Mining_Name");
-            ViewBag.Employees = new SelectList(_context.Employees, "Id", "Name");
-            ViewBag.Vehicles = new SelectList(_context.Vehicles, "Id", "Name");
+            viewModel.Minings = new SelectList(_context.Minings, "Id", "Mining_Name");
+            viewModel.Employees = new SelectList(_context.Employees, "Id", "Name");
+            viewModel.Vehicles = new SelectList(_context.Vehicles, "Id", "Name");
+            var drivers = new List<string> { "Budi", "Andi", "Charlie", "Dedi" };
+            viewModel.Drivers = new SelectList(drivers);
         }
 
         private bool VehicleBookingExists(int id)

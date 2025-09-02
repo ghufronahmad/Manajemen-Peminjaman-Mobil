@@ -1,0 +1,31 @@
+﻿@model IEnumerable<Manajemen_Peminjaman_Mobil.Models.Domain.ActivityLog>
+@{
+    ViewData["Title"] = "Activity Log";
+}
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Log Aktivitas Pengguna</h5>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Waktu</th>
+                    <th>Pengguna</th>
+                    <th>Aksi</th>
+                    <th>Deskripsi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in Model)
+                {
+                    <tr>
+                        <td>@log.Timestamp.ToString("dd MMM yyyy, HH:mm")</td>
+                        <td>@log.ActorName</td>
+                        <td><span class="badge bg-info">@log.Action</span></td>
+                        <td>@log.Description</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

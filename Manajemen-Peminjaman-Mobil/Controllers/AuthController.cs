@@ -1,73 +1,67 @@
-﻿using Manajemen_Peminjaman_Mobil.Data;
+﻿using Manajemen_Peminjaman_Mobil.Models;
 using Manajemen_Peminjaman_Mobil.Models.Domain;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Manajemen_Peminjaman_Mobil.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly VehicleManagementDbContext _context;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
 
-        public AuthController(VehicleManagementDbContext context)
+        // Inject UserManager dan SignInManager
+        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager)
         {
-            _context = context;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
-        // GET: Login
+        // GET: /Auth/Login
+        [HttpGet]
         public IActionResult Login()
         {
-            ClaimsPrincipal claimUser = HttpContext.User;
-
-            if (claimUser.Identity.IsAuthenticated)
-                return RedirectToAction("Index", "Home");
-
-            return View();
+            // Buat dan kirim ViewModel yang kosong agar form bisa ditampilkan.
+            var viewModel = new LoginViewModel();
+            return View(viewModel);
         }
 
-        // POST: Login
+        // POST: /Auth/Login
         [HttpPost]
-        public async Task<IActionResult> Login(User modelLogin)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
-            // Find user by email
-            var user = _context.Users.SingleOrDefault(u => u.Email == modelLogin.Email);
-
-            if (user != null && BCrypt.Net.BCrypt.Verify(modelLogin.Password, user.Password))
+            if (!ModelState.IsValid)
             {
-                // Create user claims based on user information
-                List<Claim> claims = new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.Email),
-                    new Claim(ClaimTypes.Role, user.Role.ToString()), // Use Role enum and convert to string
-                };
-
-                ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                AuthenticationProperties properties = new AuthenticationProperties
-                {
-                    AllowRefresh = true,
-                };
-
-                // Sign in the user with claims
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-                    new ClaimsPrincipal(claimsIdentity), properties);
-
-                return RedirectToAction("Index", "Home");
+                return View(model);
             }
 
-            // If user login fails, show error message
-            ViewData["ValidateMessage"] = "User not found or incorrect password";
-            return View();
+            // Cari user berdasarkan email
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user != null)
+            {
+                // Gunakan PasswordSignInAsync untuk login, ini akan membuat cookie yang benar
+                var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: false);
+
+                if (result.Succeeded)
+                {
+                    // Jika berhasil, arahkan ke halaman utama
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+
+            ModelState.AddModelError(string.Empty, "Login Gagal. Periksa kembali Email dan Password Anda.");
+            return View(model);
         }
 
-        // POST: Logout
+        // POST: /Auth/Logout
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Login");
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Login", "Auth");
         }
     }
 }

@@ -1,55 +1,104 @@
-﻿@model IEnumerable<Manajemen_Peminjaman_Mobil.Models.VehicleBooking>
+﻿@model IEnumerable<Manajemen_Peminjaman_Mobil.Models.ApprovalProcess>
 
 @{
-    ViewData["Title"] = "Dashboard Approval";
+    ViewData["Title"] = "Approval Tasks";
 }
 
 <div class="container-fluid">
-    <div class="container-fluid">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title fw-semibold mb-4">Create Booking</h5>
-                <div class="card">
-                    <div class="card-body">
-                        <a asp-action="Create" class="btn btn-primary">Create New Booking</a>
-                        <table class="table">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title fw-semibold mb-4">Daftar Tugas Persetujuan</h5>
+            <div class="card">
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <p>Tidak ada tugas persetujuan yang menunggu.</p>
+                    }
+                    else
+                    {
+                        <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Vehicle</th>
-                                    <th>Durasi</th>
+                                    <th>Pegawai Pemesan</th>
+                                    <th>Kendaraan</th>
                                     <th>Keperluan</th>
-                                    <th>Tanggal</th>
-                                    <th>Asal</th>
-                                    <th>Tujuan</th>
-                                    <th>Employee</th>
-                                    <th></th>
+                                    <th>Tanggal Pesan</th>
+                                    <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var vehicleBooking in Model)
+                                @foreach (var item in Model)
                                 {
                                     <tr>
-                                        <td>@vehicleBooking.Vehicle?.Name</td>
-                                        <td>@vehicleBooking.Durasi</td>
-                                        <td>@vehicleBooking.Keperluan</td>
-                                        <td>@vehicleBooking.Tanggal.ToString("yyyy-MM-dd")</td>
-                                        <td>@vehicleBooking.StartMining?.Mining_Name</td> <!-- Access StartMining navigation property -->
-                                        <td>@vehicleBooking.EndMining?.Mining_Name</td> <!-- Access EndMining navigation property -->
-                                        <td>@vehicleBooking.Employee?.Name</td>
-                                        <td>
-                                            <a asp-action="Edit" asp-route-id="@vehicleBooking.Id" class="btn btn-warning">Setuju</a>
-                                            <a asp-action="Delete" asp-route-id="@vehicleBooking.Id" class="btn btn-danger">Ditolak</a>
+                                        <td>@item.VehicleBooking.Employee.Name</td>
+                                        <td>@item.VehicleBooking.Vehicle.Name</td>
+                                        <td>@item.VehicleBooking.Keperluan</td>
+                                        <td>@item.VehicleBooking.Tanggal.ToString("dd MMMM yyyy")</td>
+                                        <td class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <form asp-action="Approve" method="post" class="d-inline">
+                                                    <input type="hidden" name="id" value="@item.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-success">Setujui</button>
+                                                </form>
+
+                                                <button type="button" class="btn btn-sm btn-danger reject-btn"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#rejectModal"
+                                                        data-id="@item.Id">
+                                                    Tolak
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 }
                             </tbody>
                         </table>
-                    </div>
+                    }
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Reject" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rejectModalLabel">Alasan Penolakan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Mohon berikan alasan mengapa pemesanan ini ditolak.</p>
+                    <input type="hidden" name="id" id="rejectBookingId" />
+                    <div class="form-group">
+                        <textarea name="remarks" class="form-control" rows="3" placeholder="Tulis alasan di sini..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger">Tolak Pesanan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 
+@section Scripts {
+    <script>
+        // Script untuk mengirim ID ke dalam modal saat tombol Tolak diklik
+        document.addEventListener('DOMContentLoaded', function () {
+            var rejectModal = document.getElementById('rejectModal');
+            rejectModal.addEventListener('show.bs.modal', function (event) {
+                // Tombol yang memicu modal
+                var button = event.relatedTarget;
+                // Ambil ID dari atribut data-id
+                var bookingId = button.getAttribute('data-id');
+                // Cari input hidden di dalam modal dan isi nilainya
+                var modalInput = rejectModal.querySelector('#rejectBookingId');
+                modalInput.value = bookingId;
+            });
+        });
+    </script>
+}

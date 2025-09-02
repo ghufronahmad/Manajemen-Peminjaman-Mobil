@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Manajemen_Peminjaman_Mobil.Migrations
 {
     [DbContext(typeof(VehicleManagementDbContext))]
-    [Migration("20241002232033_seed_employee")]
-    partial class seed_employee
+    [Migration("20250902114658_int_User")]
+    partial class int_User
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,14 +36,15 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                     b.Property<int>("ApprovalLevelId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Approved_At")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("ApproverId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Rejected_At")
+                    b.Property<DateTime?>("ProcessedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -80,6 +81,20 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ApproversLevels");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Level = 1,
+                            Name = "Level 1"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Level = 2,
+                            Name = "Level 2"
+                        });
                 });
 
             modelBuilder.Entity("Manajemen_Peminjaman_Mobil.Models.Domain.Approver", b =>
@@ -89,6 +104,9 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ApprovalLevelId")
+                        .HasColumnType("int");
 
                     b.Property<int>("DepartementId")
                         .HasColumnType("int");
@@ -100,6 +118,8 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApprovalLevelId");
 
                     b.HasIndex("DepartementId");
 
@@ -280,50 +300,68 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Password")
-                        .IsRequired()
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Email = "admin@gmail.com",
-                            Name = "Admin User",
-                            Password = "$2a$11$jm/ssG4rCbybAhR9XypJUeIiYoYYFAP5cuejAwGZziNbDLi8wbhXa",
-                            Role = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                            Email = "approver1@gmail.com",
-                            Name = "Approver 1",
-                            Password = "$2a$11$cJ6eTejoy2feRF/AwTd9R.xJMC0S9PI.okNZnY97iFqxdzO7yoOm6",
-                            Role = 1
-                        },
-                        new
-                        {
-                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
-                            Email = "approver2@gmail.com",
-                            Name = "Approver 2",
-                            Password = "$2a$11$eefl9QJD/K11zDewLZHveuPm/IZthB9Qk7AXfHglqLfocJKCqbp9K",
-                            Role = 1
-                        });
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", (string)null);
                 });
 
             modelBuilder.Entity("Manajemen_Peminjaman_Mobil.Models.Employee", b =>
@@ -333,6 +371,9 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DepartementId")
+                        .HasColumnType("int");
 
                     b.Property<int>("EmployeePositionId")
                         .HasColumnType("int");
@@ -353,6 +394,8 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DepartementId");
+
                     b.HasIndex("EmployeePositionId");
 
                     b.HasIndex("OfficeId");
@@ -363,6 +406,7 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                         new
                         {
                             Id = 1,
+                            DepartementId = 1,
                             EmployeePositionId = 1,
                             Name = "John Doe",
                             OfficeId = 1,
@@ -372,6 +416,7 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                         new
                         {
                             Id = 2,
+                            DepartementId = 4,
                             EmployeePositionId = 2,
                             Name = "Jane Smith",
                             OfficeId = 1,
@@ -381,6 +426,7 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                         new
                         {
                             Id = 3,
+                            DepartementId = 2,
                             EmployeePositionId = 2,
                             Name = "John Smith",
                             OfficeId = 1,
@@ -516,6 +562,44 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Vehicles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Toyota Avanza",
+                            Plat_Nomor = "L 1234 AB",
+                            Status_Kepemilikan = 0,
+                            Tahun_Kendaraan = "2020",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Isuzu Elf",
+                            Plat_Nomor = "B 9876 XY",
+                            Status_Kepemilikan = 1,
+                            Tahun_Kendaraan = "2019",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Mitsubishi L300",
+                            Plat_Nomor = "KT 9124 XY",
+                            Status_Kepemilikan = 0,
+                            Tahun_Kendaraan = "2015",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Mitsubishi Canter",
+                            Plat_Nomor = "KT 1204 XY",
+                            Status_Kepemilikan = 0,
+                            Tahun_Kendaraan = "2010",
+                            Type = 1
+                        });
                 });
 
             modelBuilder.Entity("Manajemen_Peminjaman_Mobil.Models.VehicleBooking", b =>
@@ -525,6 +609,9 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("DriverId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Durasi")
                         .HasColumnType("int");
@@ -542,6 +629,10 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                     b.Property<int>("StartMiningId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("Tanggal")
                         .HasColumnType("datetime2");
 
@@ -550,13 +641,174 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DriverId");
+
                     b.HasIndex("EmployeeId");
 
                     b.HasIndex("EndMiningId");
 
+                    b.HasIndex("StartMiningId");
+
                     b.HasIndex("VehicleId");
 
                     b.ToTable("VehicleBookings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Durasi = 3,
+                            EmployeeId = 1,
+                            EndMiningId = 2,
+                            Keperluan = "Site inspection",
+                            StartMiningId = 1,
+                            Status = "Menunggu",
+                            Tanggal = new DateTime(2025, 9, 1, 18, 46, 57, 355, DateTimeKind.Local).AddTicks(5455),
+                            VehicleId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Durasi = 5,
+                            EmployeeId = 1,
+                            EndMiningId = 3,
+                            Keperluan = "Equipment transfer",
+                            StartMiningId = 2,
+                            Status = "Menunggu",
+                            Tanggal = new DateTime(2025, 8, 31, 18, 46, 57, 355, DateTimeKind.Local).AddTicks(5497),
+                            VehicleId = 2
+                        });
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("Manajemen_Peminjaman_Mobil.Models.ApprovalProcess", b =>
@@ -574,7 +826,7 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                         .IsRequired();
 
                     b.HasOne("Manajemen_Peminjaman_Mobil.Models.VehicleBooking", "VehicleBooking")
-                        .WithMany()
+                        .WithMany("ApprovalProcesses")
                         .HasForeignKey("VehicleBookingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -588,6 +840,12 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
 
             modelBuilder.Entity("Manajemen_Peminjaman_Mobil.Models.Domain.Approver", b =>
                 {
+                    b.HasOne("Manajemen_Peminjaman_Mobil.Models.Domain.ApprovalLevel", "ApprovalLevel")
+                        .WithMany()
+                        .HasForeignKey("ApprovalLevelId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Manajemen_Peminjaman_Mobil.Models.Domain.Departement", "Departement")
                         .WithMany()
                         .HasForeignKey("DepartementId")
@@ -605,6 +863,8 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("ApprovalLevel");
 
                     b.Navigation("Departement");
 
@@ -626,6 +886,12 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
 
             modelBuilder.Entity("Manajemen_Peminjaman_Mobil.Models.Employee", b =>
                 {
+                    b.HasOne("Manajemen_Peminjaman_Mobil.Models.Domain.Departement", "Departement")
+                        .WithMany()
+                        .HasForeignKey("DepartementId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Manajemen_Peminjaman_Mobil.Models.Domain.EmployeePosition", "Position")
                         .WithMany()
                         .HasForeignKey("EmployeePositionId")
@@ -637,6 +903,8 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                         .HasForeignKey("OfficeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Departement");
 
                     b.Navigation("Office");
 
@@ -678,15 +946,25 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
 
             modelBuilder.Entity("Manajemen_Peminjaman_Mobil.Models.VehicleBooking", b =>
                 {
+                    b.HasOne("Manajemen_Peminjaman_Mobil.Models.Employee", "Driver")
+                        .WithMany()
+                        .HasForeignKey("DriverId");
+
                     b.HasOne("Manajemen_Peminjaman_Mobil.Models.Employee", "Employee")
                         .WithMany()
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Manajemen_Peminjaman_Mobil.Models.Domain.Mining", "Mining")
+                    b.HasOne("Manajemen_Peminjaman_Mobil.Models.Domain.Mining", "EndMining")
                         .WithMany()
                         .HasForeignKey("EndMiningId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Manajemen_Peminjaman_Mobil.Models.Domain.Mining", "StartMining")
+                        .WithMany()
+                        .HasForeignKey("StartMiningId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -696,16 +974,76 @@ namespace Manajemen_Peminjaman_Mobil.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("Driver");
+
                     b.Navigation("Employee");
 
-                    b.Navigation("Mining");
+                    b.Navigation("EndMining");
+
+                    b.Navigation("StartMining");
 
                     b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+                {
+                    b.HasOne("Manajemen_Peminjaman_Mobil.Models.Domain.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+                {
+                    b.HasOne("Manajemen_Peminjaman_Mobil.Models.Domain.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Manajemen_Peminjaman_Mobil.Models.Domain.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+                {
+                    b.HasOne("Manajemen_Peminjaman_Mobil.Models.Domain.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Manajemen_Peminjaman_Mobil.Models.Domain.Region", b =>
                 {
                     b.Navigation("Minings");
+                });
+
+            modelBuilder.Entity("Manajemen_Peminjaman_Mobil.Models.VehicleBooking", b =>
+                {
+                    b.Navigation("ApprovalProcesses");
                 });
 #pragma warning restore 612, 618
         }

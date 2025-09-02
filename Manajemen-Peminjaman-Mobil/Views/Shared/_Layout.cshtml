@@ -60,43 +60,24 @@
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link sidebar-link success-hover-bg"
-                               href="#"
-                               aria-expanded="false">
-                                <span class="aside-icon p-2 bg-light-success rounded-3">
-                                    <i class="ti ti-cards fs-7 text-success"></i>
-                                </span>
-                                <span class="hide-menu ms-2 ps-1">Employee</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link sidebar-link primary-hover-bg"
-                               href="#"
-                               aria-expanded="false">
-                                <span class="aside-icon p-2 bg-light-primary rounded-3">
-                                    <i class="ti ti-file-description fs-7 text-primary"></i>
-                                </span>
-                                <span class="hide-menu ms-2 ps-1">Fuel Consumption</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link sidebar-link indigo-hover-bg"
-                               href="#"
+                            <a class="sidebar-link sidebar-link indigo-hover-bg" asp-area="" asp-controller="ActivityLog" asp-action="Index"
+
                                aria-expanded="false">
                                 <span class="aside-icon p-2 bg-light-indigo rounded-3">
                                     <i class="ti ti-typography fs-7 text-indigo"></i>
                                 </span>
-                                <span class="hide-menu ms-2 ps-1">Service Schedule</span>
+                                <span class="hide-menu ms-2 ps-1">Activity Log</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link sidebar-link warning-hover-bg" asp-area="" asp-controller="Home" asp-action="Logout"
-                               aria-expanded="false">
+                            <a id="logoutLink" class="sidebar-link sidebar-link warning-hover-bg" href="#" aria-expanded="false">
                                 <span class="aside-icon p-2 bg-light-warning rounded-3">
                                     <i class="ti ti-login fs-7 text-warning"></i>
                                 </span>
                                 <span class="hide-menu ms-2 ps-1">Logout</span>
                             </a>
+
+                            <form id="logoutForm" asp-controller="Auth" asp-action="Logout" method="post" style="display: none;"></form>
                         </li>
                     </ul>
                 </nav>
@@ -142,7 +123,9 @@
                                             <i class="ti ti-list-check fs-6"></i>
                                             <p class="mb-0 fs-3">My Task</p>
                                         </a>
-                                        <a href="javascript:void(0)" class="btn btn-outline-primary mx-3 mt-2 d-block shadow-none">Logout</a>
+                                        <form asp-controller="Auth" asp-action="Logout" method="post">
+                                            <button type="submit" class="btn btn-outline-primary mx-3 mt-2 d-block shadow-none w-100">Logout</button>
+                                        </form>
                                     </div>
                                 </div>
                             </li>
@@ -165,6 +148,19 @@
     <script src="~/js/app.min.js"></script>
     <script src="~/js/dashboard.js"></script>
     <script src="~/lib/apexcharts/dist/apexcharts.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const logoutLink = document.getElementById('logoutLink');
+            const logoutForm = document.getElementById('logoutForm');
+
+            if (logoutLink && logoutForm) {
+                logoutLink.addEventListener('click', function (event) {
+                    event.preventDefault(); // Mencegah link berpindah halaman
+                    logoutForm.submit();    // Mengirim (submit) form logout
+                });
+            }
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

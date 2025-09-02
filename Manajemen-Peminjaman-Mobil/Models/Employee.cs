@@ -12,5 +12,7 @@ namespace Manajemen_Peminjaman_Mobil.Models
         public Office Office { get; set; }
         public int EmployeePositionId { get; set; }
         public EmployeePosition Position { get; set; }
+        public int DepartementId { get; set; }
+        public Departement Departement { get; set; }
     }
 }

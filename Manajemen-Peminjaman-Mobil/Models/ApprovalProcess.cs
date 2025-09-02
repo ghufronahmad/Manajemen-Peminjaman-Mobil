@@ -1,4 +1,5 @@
 ﻿using Manajemen_Peminjaman_Mobil.Models.Domain;
+using System.ComponentModel.DataAnnotations;
 
 namespace Manajemen_Peminjaman_Mobil.Models
 {
@@ -6,8 +7,9 @@ namespace Manajemen_Peminjaman_Mobil.Models
     {
         public int Id { get; set; }
         public StatusApproval Status { get; set; }
-        public DateTime Approved_At { get; set; }
-        public DateTime Rejected_At { get; set; }
+        public DateTime? ProcessedAt { get; set; }
+        [MaxLength(500)]
+        public string? Remarks { get; set; }
         public int VehicleBookingId { get; set; }
         public VehicleBooking VehicleBooking { get; set; }
         public int ApprovalLevelId { get; set; }

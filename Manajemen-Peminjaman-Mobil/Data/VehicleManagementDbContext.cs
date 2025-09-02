@@ -1,17 +1,18 @@
 ﻿using Manajemen_Peminjaman_Mobil.Models;
 using Manajemen_Peminjaman_Mobil.Models.Domain;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Manajemen_Peminjaman_Mobil.Data
 {
-    public class VehicleManagementDbContext : DbContext
+    public class VehicleManagementDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     {
         public VehicleManagementDbContext(DbContextOptions options) : base(options)
         {
         }
 
-        public DbSet<User> Users { get; set; }
         public DbSet<EmployeePosition> EmployeePositions { get; set; }
         public DbSet<Departement> Departements { get; set; }
         public DbSet<Region> Regions { get; set; }
@@ -25,6 +26,7 @@ namespace Manajemen_Peminjaman_Mobil.Data
         public DbSet<VehicleBooking> VehicleBookings { get; set; }
         public DbSet<ApprovalLevel> ApproversLevels { get; set; }
         public DbSet<ApprovalProcess> approvalProcesses { get; set; }
+        public DbSet<ActivityLog> ActivityLogs { get; set; }
 
 
 
@@ -54,35 +56,19 @@ namespace Manajemen_Peminjaman_Mobil.Data
                 .HasOne(vb => vb.Vehicle)
                 .WithMany() // Assuming a one-to-many relationship
                 .HasForeignKey(vb => vb.VehicleId)
-                .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete for Vehicle
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // Seeding Admin
-            modelBuilder.Entity<User>().HasData(
-                new User
-                {
-                    Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                    Name = "Admin User",
-                    Email = "admin@gmail.com",
-                    Password = BCrypt.Net.BCrypt.HashPassword("AdminPassword123"),
-                    Role = Role.Admin
-                },
-                new User
-                {
-                    Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                    Name = "Approver 1",
-                    Email = "approver1@gmail.com",
-                    Password = BCrypt.Net.BCrypt.HashPassword("ApproverPassword123"),
-                    Role = Role.Approver
-                },
-                new User
-                {
-                    Id = new Guid("33333333-3333-3333-3333-333333333333"),
-                    Name = "Approver 2",
-                    Email = "approver2@gmail.com",
-                    Password = BCrypt.Net.BCrypt.HashPassword("ApproverPassword456"),
-                    Role = Role.Approver
-                }
-            );
+            modelBuilder.Entity<Approver>()
+                .HasOne(approver => approver.ApprovalLevel)
+                .WithMany() // Asumsi ApprovalLevel tidak punya koleksi Approvers
+                .HasForeignKey(approver => approver.ApprovalLevelId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Employee>()
+                .HasOne(employee => employee.Departement)
+                .WithMany() 
+                .HasForeignKey(employee => employee.DepartementId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Seeding Position
             modelBuilder.Entity<EmployeePosition>().HasData(
@@ -131,7 +117,8 @@ namespace Manajemen_Peminjaman_Mobil.Data
                 Phone_Number = "08123456789",
                 Tanggal_Lahir = new DateTime(1985, 5, 20),
                 OfficeId = 1,
-                EmployeePositionId = 1
+                EmployeePositionId = 1,
+                DepartementId = 1
             },
             new Employee
             {
@@ -140,16 +127,28 @@ namespace Manajemen_Peminjaman_Mobil.Data
                 Phone_Number = "08198765432",
                 Tanggal_Lahir = new DateTime(1990, 8, 15),
                 OfficeId = 1,
-                EmployeePositionId = 2
+                EmployeePositionId = 2,
+                DepartementId = 1
             },
             new Employee
             {
                 Id = 3,
+                Name = "Josh S",
+                Phone_Number = "08198765422",
+                Tanggal_Lahir = new DateTime(1980, 7, 10),
+                OfficeId = 1,
+                EmployeePositionId = 1,
+                DepartementId = 2
+            },
+            new Employee
+            {
+                Id = 4,
                 Name = "John Smith",
                 Phone_Number = "08198765422",
                 Tanggal_Lahir = new DateTime(1980, 7, 10),
                 OfficeId = 1,
-                EmployeePositionId = 2
+                EmployeePositionId = 2,
+                DepartementId = 2
             }
         );
 
@@ -197,22 +196,6 @@ namespace Manajemen_Peminjaman_Mobil.Data
                 new ApprovalLevel { Id = 2, Name = "Level 2", Level = 2 }
                 );
 
-            modelBuilder.Entity<Approver>().HasData(
-                new Approver
-                {
-                    Id = 1,
-                    EmployeeId = 2,
-                    DepartementId = 1,
-                    UserId = new Guid("22222222-2222-2222-2222-222222222222")
-                },
-                new Approver
-                {
-                    Id = 2,
-                    EmployeeId = 2,
-                    DepartementId = 4,
-                    UserId = new Guid("33333333-3333-3333-3333-333333333333")
-                });
-
             modelBuilder.Entity<VehicleBooking>().HasData(
             new VehicleBooking
             {
@@ -223,18 +206,9 @@ namespace Manajemen_Peminjaman_Mobil.Data
                 StartMiningId = 1,
                 EndMiningId = 2,
                 EmployeeId = 1,
-                VehicleId = 1
-            },
-            new VehicleBooking
-            {
-                Id = 2,
-                Keperluan = "Equipment transfer",
-                Durasi = 5,
-                Tanggal = DateTime.Now.AddDays(-2),
-                StartMiningId = 2,
-                EndMiningId = 3,
-                EmployeeId = 1,
-                VehicleId = 2
+                VehicleId = 1,
+                Status= "Menunggu",
+                DriverName = "Budi"
             }
         );
 
