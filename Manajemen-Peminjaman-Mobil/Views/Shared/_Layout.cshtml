@@ -40,25 +40,30 @@
                                 <span class="hide-menu ms-2 ps-1">Dashboard</span>
                             </a>
                         </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link sidebar-link warning-hover-bg" asp-area="" asp-controller="VehicleBooking" asp-action="Index"
-                               aria-expanded="false">
-                                <span class="aside-icon p-2 bg-light-warning rounded-3">
-                                    <i class="ti ti-article fs-7 text-warning"></i>
-                                </span>
-                                <span class="hide-menu ms-2 ps-1">Booking</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link sidebar-link danger-hover-bg " asp-area="" asp-controller="ApprovalProcess" asp-action="Index"
-                               
-                               aria-expanded="false">
-                                <span class="aside-icon p-2 bg-light-danger rounded-3">
-                                    <i class="ti ti-alert-circle fs-7 text-danger"></i>
-                                </span>
-                                <span class="hide-menu ms-2 ps-1">Approval</span>
-                            </a>
-                        </li>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="sidebar-item">
+                                <a class="sidebar-link sidebar-link warning-hover-bg" asp-area="" asp-controller="VehicleBooking" asp-action="Index"
+                                   aria-expanded="false">
+                                    <span class="aside-icon p-2 bg-light-warning rounded-3">
+                                        <i class="ti ti-article fs-7 text-warning"></i>
+                                    </span>
+                                    <span class="hide-menu ms-2 ps-1">Booking</span>
+                                </a>
+                            </li>
+                        }
+                        @if (User.IsInRole("Approver"))
+                        {
+                            <li class="sidebar-item">
+                                <a class="sidebar-link sidebar-link danger-hover-bg " asp-area="" asp-controller="ApprovalProcess" asp-action="Index"
+                                   aria-expanded="false">
+                                    <span class="aside-icon p-2 bg-light-danger rounded-3">
+                                        <i class="ti ti-alert-circle fs-7 text-danger"></i>
+                                    </span>
+                                    <span class="hide-menu ms-2 ps-1">Approval</span>
+                                </a>
+                            </li>
+                        }
                         <li class="sidebar-item">
                             <a class="sidebar-link sidebar-link indigo-hover-bg" asp-area="" asp-controller="ActivityLog" asp-action="Index"
 
