@@ -13,17 +13,16 @@ Ini adalah repositori yang diperuntukkan untuk tes teknikal dengan `case` nya ad
 ![App Screenshot](https://github.com/ghufronahmad/Manajemen-Peminjaman-Mobil/blob/master/public/admin/dashboard.png?raw=true)
 
 ### 2. `Admin` Dashboard Pemesanan
-![App Screenshot](https://github.com/ghufronahmad/Manajemen-Peminjaman-Mobil/blob/master/public/admin/booking.png?raw=true)
+![App Screenshot](https://github.com/ghufronahmad/Manajemen-Peminjaman-Mobil/blob/master/public/admin/dashboard_booking.png?raw=true)
 
-### 3. `Admin` Dashboard Form
-![App Screenshot](https://github.com/ghufronahmad/Manajemen-Peminjaman-Mobil/blob/master/public/admin/create%20booking.png?raw=true)
+### 3. `Admin` Form Pemesanan
+![App Screenshot](https://github.com/ghufronahmad/Manajemen-Peminjaman-Mobil/blob/master/public/admin/form_booking.png?raw=true)
 
-### 4. `Admin` Dashboard Responsive
-![App Screenshot](https://github.com/ghufronahmad/Manajemen-Peminjaman-Mobil/blob/master/public/admin/dashboard%20responsive.png?raw=true)
+### 4. `Approver` Dashboard
+![App Screenshot](https://github.com/ghufronahmad/Manajemen-Peminjaman-Mobil/blob/master/public/approver/approver_1.png?raw=true)
 
-### 5. `Approver` Dashboard
-Belum selesai
-
+### 5. `Activity Log` 
+![App Screenshot](https://github.com/ghufronahmad/Manajemen-Peminjaman-Mobil/blob/master/public/approver/activity_log.png?raw=true)
 
 ## Installation 🗳
 
@@ -44,7 +43,7 @@ Sesuaikan database environment,
 contoh
 
 ```bash
-"VehicleManagementDbConnectionString": "server={Your-Database}\\SQLEXPRESS;database=peminjamanmobil;Trusted_connection=true;TrustServerCertificate=true;"
+"VehicleManagementDbConnectionString": "server={Your-Database};database=peminjamanmobil;Trusted_connection=true;TrustServerCertificate=true;"
 ```
 
 Buka Package Manager Console
@@ -66,12 +65,12 @@ dotnet watch
 
 | username | password  |
 | :-------- | :------- |
-| `admin@gmail.com` | `AdminPassword123` |
+| `admin@gmail.com` | `admin123` |
 
 ### 2. Approver
 
 
 | username | password  |
 | :-------- | :------- |
-| `approver1@gmail.com` | `ApproverPassword123` |
-| `approver1@gmail.com` | `ApproverPassword123` |
+| `approver1@gmail.com` | `approver123` |
+| `approver1@gmail.com` | `approver456` |
